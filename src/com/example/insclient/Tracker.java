@@ -20,6 +20,12 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Vibrator;
 
+/**
+ * @author Gabriel
+ *
+ * Tracker class is a separate thread that runs and records the telemetry data of the client's phone.
+ * Recording, orientation and linear acceleration with timestamps. (GPS next)
+ */
 public class Tracker extends Thread implements SensorEventListener{
 
 	public static final int DEGREE_ERROR = 10;
@@ -55,6 +61,13 @@ public class Tracker extends Thread implements SensorEventListener{
 	private Timer loggerT;
     private FileWriter writer;
     
+    /**
+     * @param _context
+     * @param _handle
+     * @param _parent
+     * 
+     * Constructor, initialises variables and sensor managers. Also stores information from parent class.
+     */
     public Tracker(Context _context, Handler _handle, MainActivity _parent) {
     	context = _context;
     	handler = _handle;
@@ -104,6 +117,10 @@ public class Tracker extends Thread implements SensorEventListener{
     	}
     }
     
+    /**
+     * Starts the log scheduler to store the data into a linked list.
+     * Also sends a message to the server app informing that the logger has started.
+     */
     public void startLog() {
     	logging = true;
     	logData.clear(); msgs.clear();
@@ -125,6 +142,9 @@ public class Tracker extends Thread implements SensorEventListener{
     	handler.obtainMessage(3,"Logger started...").sendToTarget();
     }
     
+    /**
+     * Logs the last entry before stopping the scheduler.
+     */
     public void stopLog() {
     	log();
     	logging = false;
@@ -132,11 +152,21 @@ public class Tracker extends Thread implements SensorEventListener{
     	loggerT.purge();
     }
     
+    /**
+     * @param _name
+     * 
+     * Stores the name of the test client.
+     */
     public void name(String _name) {
     	name = String.copyValueOf(_name.toCharArray());
     	handler.obtainMessage(0, "Name set to " + name).sendToTarget();
     }
     
+    /**
+     * @param msg
+     * 
+     * Save the script that is played to the test client, timestamped.
+     */
     public void saveMsg(String msg) {
     	Date d = new Date(System.currentTimeMillis());
     	SimpleDateFormat sdf=new SimpleDateFormat("hh:mm:ss.SS", Locale.UK);
@@ -146,10 +176,20 @@ public class Tracker extends Thread implements SensorEventListener{
     	msgs.add(text);
     }
     
+    /**
+     * @param deg
+     * 
+     * Store the integer amount of degrees the test client has to turn.
+     */
     public void setDegrees(int deg) {
 		degrees = deg;
 	}
     
+    /**
+     * @param d
+     * 
+     * Set whether the test client has to turn left or right.
+     */
     public void setLR (int d) {
     	if(d==1)
     		turnL=true;
@@ -157,6 +197,11 @@ public class Tracker extends Thread implements SensorEventListener{
     		turnR=true;
     }
 	
+    /**
+     * @return
+     * 
+     * Set the integer value of orientation the test client is facing when the script is recieved.
+     */
     public long setFace() {
     	initO = ((Long) Math.round(Math.toDegrees(matrixValues[0]))).intValue();
     	if(initO < 0) {
@@ -165,6 +210,11 @@ public class Tracker extends Thread implements SensorEventListener{
     	return initO;
     }
     
+    /**
+     * @param ori
+     * 
+     * Check if the test client has rotated right to the correct direction within some DEGREE_ERROR.
+     */
     public void checkTurnR(long ori) {
     	ori+=(360-initO);
     	if(ori < 0) {
@@ -181,6 +231,11 @@ public class Tracker extends Thread implements SensorEventListener{
     	}
     }
     
+    /**
+     * @param ori
+     * 
+     * Check if the test client has rotated left to the correct direction within some DEGREE_ERROR.
+     */
     public void checkTurnL(long ori) {
     	long tmp = initO;
     	tmp+=(360-ori);
@@ -198,10 +253,18 @@ public class Tracker extends Thread implements SensorEventListener{
     	}
     }
     
+    /**
+     * Called from Responder class. User would have touched the screen. Also stops class from checking further.
+     */
     public void turnFin() {
     	turnL = false; turnR = false;
     }
     
+	/**
+	 * @see android.hardware.SensorEventListener#onAccuracyChanged(android.hardware.Sensor, int)
+	 * 
+	 * Sends information of accelerometer's accuracy to parent class (MainActivity) which in turn will send to the server app.
+	 */
 	@Override
 	public void onAccuracyChanged(Sensor arg0, int arg1) {
 		if (arg0 == mAccelerometer && arg1 == SensorManager.SENSOR_STATUS_UNRELIABLE) {
@@ -211,6 +274,11 @@ public class Tracker extends Thread implements SensorEventListener{
 		}
 	}
 
+	/**
+	 * @see android.hardware.SensorEventListener#onSensorChanged(android.hardware.SensorEvent)
+	 * 
+	 * Stores orientation and acceleration values, also calls methods to check turning if required.
+	 */
 	@Override
 	public void onSensorChanged(SensorEvent event) {
 		switch(event.sensor.getType()){
@@ -249,6 +317,9 @@ public class Tracker extends Thread implements SensorEventListener{
 		return; //else?
 	}
 
+	/**
+	 * Stores the sensor data from the linked list logData as a csv file. Will provide a message once logging is done.
+	 */
 	public void log() {
 		String appPath = Environment.getExternalStorageDirectory().toString();
 		File appDir = new File(appPath + "/" + "logs");
@@ -287,11 +358,28 @@ public class Tracker extends Thread implements SensorEventListener{
 		handler.obtainMessage(3, "Finished Logging!").sendToTarget();
 	}
 
+	/**
+	 * @param ts
+	 * @param a
+	 * @param p
+	 * @param r
+	 * @param x
+	 * @param y
+	 * @param z
+	 * @throws IOException
+	 * 
+	 * Writes the data to the file based on the parameters provided.
+	 */
 	public void writeData(String ts, float a, float p, float r, float x, float y, float z) throws IOException {
 		String line = String.format("%s,%f,%f,%f,%f,%f,%f\n", ts,a,p,r,x,y,z);
 		writer.write(line);
 	}
 
+	/**
+	 * @throws IOException
+	 * 
+	 * Writes the script messsages at the start of the log file.
+	 */
 	public void writeMsgs() throws IOException{
 		int i = 0;
 		while(!msgs.isEmpty()) {

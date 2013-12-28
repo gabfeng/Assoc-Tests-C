@@ -22,6 +22,12 @@ public class Sounds extends Thread implements OnCompletionListener, OnInitListen
 	private TextToSpeech tts;
 	private Handler handler;
 	
+	/**
+	 * @param _context
+	 * @param _handler
+	 * 
+	 * Constructor, initialises vibrator service and text to speech, and stores information from parent class.
+	 */
 	public Sounds(Context _context, Handler _handler) {
 		mediaPlayer = new MediaPlayer();
 		context = _context;
@@ -30,23 +36,37 @@ public class Sounds extends Thread implements OnCompletionListener, OnInitListen
 		tts = new TextToSpeech(context, this);
 	}
 
+	/**
+	 * @see android.media.MediaPlayer.OnCompletionListener#onCompletion(android.media.MediaPlayer)
+	 * 
+	 * When the mediaPlayer finishes playing the sound file set a boolean to true.
+	 */
 	@Override
 	public void onCompletion(MediaPlayer arg0) {
 		// TODO Auto-generated method stub
 		mcompleted = true;
 	}
 	
+	/**
+	 * Method call to stop vibration, text to speech, and media player.
+	 */
 	public void release() {
 		stopTTS();
 		vibrator.cancel();
 		mediaPlayer.release();
 	}
 	
+	/**
+	 * Method to play a "ding" sound.
+	 */
 	public void beep() {
 		mediaPlayer=MediaPlayer.create(context, R.raw.ding);
 		mediaPlayer.start();
 	}
 	
+	/**
+	 * Method to play an emergency stop alert sound along with vibrations.
+	 */
 	public void estop() {
 		tts.stop();
 		mcompleted = false;
@@ -59,6 +79,11 @@ public class Sounds extends Thread implements OnCompletionListener, OnInitListen
 		vibrator.vibrate(pattern,0);
 	}
 
+	/**
+	 * @see android.speech.tts.TextToSpeech.OnInitListener#onInit(int)
+	 * 
+	 * Initialises TTS and Progress listener.
+	 */
 	@Override
 	public void onInit(int status) {
 		if(status == TextToSpeech.SUCCESS) {
@@ -66,7 +91,12 @@ public class Sounds extends Thread implements OnCompletionListener, OnInitListen
 			if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
 				handler.obtainMessage(3, ("TTS: Language not supported!")).sendToTarget();
 			} else {
-				int err = tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+				int err = tts.setOnUtteranceProgressListener(/**
+				 * @author Gabriel
+				 *
+				 * Progress listener for TTS. Send a message to parent class with ID 3 of TTS Status
+				 */
+				new UtteranceProgressListener() {
 					@Override
 					public void onDone(String utteranceID) {
 						tcompleted=true;
@@ -97,6 +127,14 @@ public class Sounds extends Thread implements OnCompletionListener, OnInitListen
 		
 	}
 	
+	/**
+	 * @param strToPlay
+	 * @param queue
+	 * @param _inst
+	 * @return result of TTS
+	 * 
+	 * Plays text based on string provided.
+	 */
 	public boolean playText(String strToPlay, int queue, boolean _inst) {
 		inst = _inst;
 		HashMap<String, String> hashAudio = new HashMap<String, String>();

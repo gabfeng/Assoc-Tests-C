@@ -15,6 +15,14 @@ public class Responder implements OnTouchListener{
 	private boolean waitingForTouch;
 	private Vibrator vibrator;
 	
+	/**
+	 * @param _context
+	 * @param _sounds
+	 * @param _tracker
+	 * @param _parent
+	 * 
+	 * Constructor, initialises vibrator service for haptic feedback, and stores information from parent class.
+	 */
 	public Responder(Context _context, Sounds _sounds, Tracker _tracker, MainActivity _parent) {
 		sounds = _sounds;
 		tracker = _tracker;
@@ -22,6 +30,11 @@ public class Responder implements OnTouchListener{
 		context = _context;
 		vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
 	}
+	/**
+	 * @see android.view.View.OnTouchListener#onTouch(android.view.View, android.view.MotionEvent)
+	 * 
+	 * Called when screen is touched. To stop sounds being played and let server application know client has completed a task.
+	 */
 	@Override
 	public boolean onTouch(View arg0, MotionEvent arg1) {
 		// TODO Auto-generated method stub
@@ -36,6 +49,9 @@ public class Responder implements OnTouchListener{
 		return false;
 	}
 	
+	/**
+	 * Sets a variable for onTouch method to do work.
+	 */
 	public void expectTouch() {
 		waitingForTouch = true;
 	}

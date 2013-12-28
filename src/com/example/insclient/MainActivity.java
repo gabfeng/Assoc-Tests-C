@@ -59,6 +59,11 @@ public class MainActivity extends Activity{
 	
 	public Handler handler;
 	
+	/**
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 * 
+	 * Initialises layout IDs, Bluetooth, child classes such as Responder, Tracker and Sounds, and handler.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -88,6 +93,11 @@ public class MainActivity extends Activity{
 		
 		
 		handler = new Handler() {//what; 0 - Toast, 1 - message read, 2 - emergency sounds, 3 - status, 4 - start log, 5- test
+			/**
+			 * @see android.os.Handler#handleMessage(android.os.Message)
+			 * 
+			 * 
+			 */
 			@Override
 			public void handleMessage(Message msg) {
 				int duration = Toast.LENGTH_SHORT;
@@ -157,6 +167,11 @@ public class MainActivity extends Activity{
 		screen.setOnTouchListener(tResponder);
 	}
 
+	/**
+	 * @see android.app.Activity#onStop()
+	 * 
+	 * Release resources and stop threads.
+	 */
 	@Override
 	protected void onStop() {
 		super.onStop();
@@ -186,16 +201,29 @@ public class MainActivity extends Activity{
 		return true;
 	}
 	
+	/**
+	 * @param msg
+	 * 
+	 * Show status message on screen of TTS status.
+	 */
 	public void setStatusMsg(String msg){
 		tv.setText(msg);
 	}
 	
-	//msg==2 -> Tracker live, msg==3 -> Tracker accuracy low, msg==4 -> Tracker stopped
+	/**
+	 * @param msg
+	 * 
+	 * Send information to server app about tracker status.
+	 * Msg==2 -> Tracker live, msg==3 -> Tracker accuracy low, msg==4 -> Tracker stopped
+	 */
 	public void sendTrackerInfo(int msg) {
 		if(connect)
 			ct.wt.write(msg);
 	}
 	
+	/**
+	 * Send ready status to server app.
+	 */
 	public void setReady() {
 		if (!connect) {
 			CharSequence text = "Not Connected";
@@ -211,6 +239,12 @@ public class MainActivity extends Activity{
 		}
 	}
 	
+	/**
+	 * @param item
+	 * 
+	 * Upon menu item selection a list of paired Bluetooth devices will be displayed.
+	 * The user can then select which device to connect to.
+	 */
 	public void connectDevice(MenuItem item) {
 		devs.setVisibility(View.VISIBLE);
 		pairedDevices = mBluetoothAdapter.getBondedDevices();
@@ -245,11 +279,22 @@ public class MainActivity extends Activity{
 		});
 	}
 
+	/**
+	 * @param item
+	 * 
+	 * Allows the client to assign a name to the test data. Sends the name to tracker class.
+	 */
 	public void setName(MenuItem item) {
 		name = eText.getText().toString();
 		tracker.name(name);
 	}
 	
+	/**
+	 * @param item
+	 * 
+	 * Upon menu item selection. Connection to server is disconnected by cancelling thread.
+	 * Tracker is also halted.
+	 */
 	public void disconnectDevice(MenuItem item) {
 		if(adapter != null) {
 			devs.setVisibility(View.GONE);
@@ -267,6 +312,12 @@ public class MainActivity extends Activity{
 		toast.show();
 	}
 	
+	/**
+	 * @param msg
+	 * @return
+	 * 
+	 * 
+	 */
 	public boolean checkScript(ArrayList<String> msg) {
 		if(msg.size() < 7) return false;
 		if(msg.get(4).contains("Turn")) {
@@ -295,6 +346,11 @@ public class MainActivity extends Activity{
 		}
 	}
 	
+	/**
+	 * @author Gabriel
+	 *
+	 * Separate thread for Bluetooth.
+	 */
 	private class ConnectThread extends Thread {
 		private final BluetoothSocket mmSocket;
 	    private final BluetoothDevice mmDevice;
@@ -318,6 +374,11 @@ public class MainActivity extends Activity{
 	        mmSocket = tmp;
 	    }
 	 
+	    /**
+	     * @see java.lang.Thread#run()
+	     * 
+	     * Main method to attempt to connect to Bluetooth device.
+	     */
 	    public void run() {
 	        // Cancel discovery because it will slow down the connection
 	        mBluetoothAdapter.cancelDiscovery();
@@ -364,6 +425,11 @@ public class MainActivity extends Activity{
 	    
 	}
 	
+	/**
+	 * @author Gabriel
+	 *
+	 * Worker thread that handles Bluetooth communication.
+	 */
 	private class WorkerThread extends Thread {
 	    private final BluetoothSocket mmSocket;
 	    private final InputStream mmInStream;
@@ -388,6 +454,10 @@ public class MainActivity extends Activity{
 	        mmOutStream = tmpOut;
 	    }
 	 
+	    /**
+	     * @see java.lang.Thread#run()
+	     * Main method that accepts messages from UI thread though a handler, reads and sends messages from server application.
+	     */
 	    public void run() {
 	        byte[] buffer = new byte[1024];  // buffer store for the stream
 	        int bytes; // bytes returned from read()
@@ -447,7 +517,9 @@ public class MainActivity extends Activity{
 	        }
 	    }
 	 
-	    /* Call this from the main activity to send data to the remote device */
+	    /**
+	     *  Call this from the main activity to send data to the remote device 
+	     */
 	    public void write(int b) { 
 	    	if(b == 1) ready = true;
 	    	else if(b == 0) ready = false;
@@ -456,7 +528,9 @@ public class MainActivity extends Activity{
 	        } catch (IOException e) { }
 	    }
 	 
-	    /* Call this from the main activity to shutdown the connection */
+	    /** 
+	     * Call this from the main activity to shutdown the connection 
+	     */
 	    public void cancel() {
 	        try {
 	            mmSocket.close();
