@@ -92,10 +92,11 @@ public class MainActivity extends Activity{
 		}
 		
 		
-		handler = new Handler() {//what; 0 - Toast, 1 - message read, 2 - emergency sounds, 3 - status, 4 - start log, 5- test
+		handler = new Handler() {
 			/**
 			 * @see android.os.Handler#handleMessage(android.os.Message)
 			 * 
+			 * What; 0 - Toast, 1 - message read, 2 - emergency sounds, 3 - status, 4 - start log, 5- current angle.
 			 * 
 			 */
 			@Override
@@ -316,7 +317,7 @@ public class MainActivity extends Activity{
 	 * @param msg
 	 * @return
 	 * 
-	 * 
+	 * Check script to see if further work is needed to be done for a turning action.
 	 */
 	public boolean checkScript(ArrayList<String> msg) {
 		if(msg.size() < 7) return false;
