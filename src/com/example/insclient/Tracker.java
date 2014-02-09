@@ -53,13 +53,13 @@ public class Tracker extends Thread implements SensorEventListener{
     private Date ts;
     private boolean logging;
     private boolean turnL, turnR;
-    private boolean vibed;
 	private int degrees;
 	private long initO;
 	private long[] pattern = {0,VIB,GAP,VIB,GAP,VIB,GAP};
 	private String name;
 	private Timer loggerT;
     private FileWriter writer;
+    private boolean vib = false;
     
     /**
      * @param _context
@@ -211,45 +211,47 @@ public class Tracker extends Thread implements SensorEventListener{
     }
     
     /**
-     * @param ori
+     * @param ori the uncorrected currently facing direction
      * 
      * Check if the test client has rotated right to the correct direction within some DEGREE_ERROR.
      */
     public void checkTurnR(long ori) {
-    	ori+=(360-initO);
-    	if(ori < 0) {
-	  		ori += 360;
-	  	} else if (ori > 360){
-	  		ori -= 360;
+    	long diff =	ori + (360-initO);
+    	if(diff < 0) {
+	  		diff += 360;
+	  	} else if (diff > 360){
+	  		diff -= 360;
 	  	}
-    	if(ori >= degrees-DEGREE_ERROR && ori <= degrees+DEGREE_ERROR && !vibed) {
-    		vibrator.vibrate(pattern,-1);
-    		vibed = true;
-    	} else if(ori < degrees-DEGREE_ERROR || ori > degrees+DEGREE_ERROR){
-    		vibed = false;
+    	if(diff >= degrees-DEGREE_ERROR && diff <= degrees+DEGREE_ERROR && !vib) {
+    		vibrator.vibrate(pattern,1);
+    		vib = true;
+    	} else if(diff < degrees-DEGREE_ERROR || diff > degrees+DEGREE_ERROR){
+    		handler.obtainMessage(6, diff).sendToTarget();
     		vibrator.cancel();
+    		vib = false;
     	}
     }
     
     /**
-     * @param ori
+     * @param ori the uncorrected currently facing direction
      * 
      * Check if the test client has rotated left to the correct direction within some DEGREE_ERROR.
      */
     public void checkTurnL(long ori) {
-    	long tmp = initO;
-    	tmp+=(360-ori);
-    	if(tmp < 0) {
-	  		tmp += 360;
-	  	} else if (tmp > 360){
-	  		tmp -= 360;
+    	long diff = initO;
+    	diff+=(360-ori);
+    	if(diff < 0) {
+	  		diff += 360;
+	  	} else if (diff > 360){
+	  		diff -= 360;
 	  	}
-    	if(tmp >= degrees-DEGREE_ERROR && tmp <= degrees+DEGREE_ERROR && !vibed) {
-    		vibrator.vibrate(pattern,-1);
-    		vibed = true;
-    	} else if(tmp < degrees-DEGREE_ERROR || tmp > degrees+DEGREE_ERROR){
-    		vibed = false;
+    	if(diff >= degrees-DEGREE_ERROR && diff <= degrees+DEGREE_ERROR && !vib) {
+    		vibrator.vibrate(pattern,1);
+    		vib = true;
+    	} else if(diff < degrees-DEGREE_ERROR || diff > degrees+DEGREE_ERROR){
+    		handler.obtainMessage(6, diff).sendToTarget();
     		vibrator.cancel();
+    		vib = false;
     	}
     }
     

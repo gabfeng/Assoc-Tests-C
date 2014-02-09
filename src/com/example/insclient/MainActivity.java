@@ -43,7 +43,7 @@ public class MainActivity extends Activity{
 	private int REQUEST_ENABLE_BT;
 	private Set<BluetoothDevice> pairedDevices;
 	private ListView devs;
-	private TextView tv, rec, ang, initang;
+	private TextView tv, rec, ang, initang, turnang, diffang;
 	private EditText eText;
 	private String name;
 	private ArrayList<BluetoothDevice> devList;
@@ -77,6 +77,8 @@ public class MainActivity extends Activity{
 		rec = (TextView) findViewById(R.id.rec);
 		ang = (TextView) findViewById(R.id.ang);
 		initang = (TextView) findViewById(R.id.initang);
+		turnang = (TextView) findViewById(R.id.turnang);
+		diffang = (TextView) findViewById(R.id.diffang);
 		
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 		if(mBluetoothAdapter == null) {
@@ -96,7 +98,7 @@ public class MainActivity extends Activity{
 			/**
 			 * @see android.os.Handler#handleMessage(android.os.Message)
 			 * 
-			 * What; 0 - Toast, 1 - message read, 2 - emergency sounds, 3 - status, 4 - start log, 5- current angle.
+			 * What; 0 - Toast, 1 - message read, 2 - Standard sounds, 3 - status, 4 - start log, 5- current angle.
 			 * 
 			 */
 			@Override
@@ -131,6 +133,31 @@ public class MainActivity extends Activity{
 						tracker.saveMsg("EStop");
 						sounds.estop();
 						ct.wt.write(0);//Send not ready
+					} else if( s.contains("Sound:Feel") ) {
+						tResponder.expectTouch();
+						tracker.saveMsg("Feel");
+						sounds.playText("Feel for", TextToSpeech.QUEUE_FLUSH, true);
+						ct.wt.write(0);//Send not ready
+					} else if( s.contains("Sound:Scan") ) {
+						tResponder.expectTouch();
+						tracker.saveMsg("Scan");
+						sounds.playText("Scan for", TextToSpeech.QUEUE_FLUSH, true);
+						ct.wt.write(0);//Send not ready
+					} else if( s.contains("Sound:Align") ) {
+						tResponder.expectTouch();
+						tracker.saveMsg("Align");
+						sounds.playText("Align with", TextToSpeech.QUEUE_FLUSH, true);
+						ct.wt.write(0);//Send not ready
+					} else if( s.contains("Sound:Pop") ) {
+						tResponder.expectTouch();
+						tracker.saveMsg("Pop");
+						sounds.playText("Pop up", TextToSpeech.QUEUE_FLUSH, true);
+						ct.wt.write(0);//Send not ready
+					} else if( s.contains("Sound:Square") ) {
+						tResponder.expectTouch();
+						tracker.saveMsg("Square");
+						sounds.playText("Sqaure off", TextToSpeech.QUEUE_FLUSH, true);
+						ct.wt.write(0);//Send not ready
 					}
 					break;
 				case 3:
@@ -151,6 +178,9 @@ public class MainActivity extends Activity{
 					String angle = (String)(msg.obj);
 					ang.setText("Current angle: "+angle);
 					break;
+				case 6:
+					Long diff = (Long)(msg.obj);
+					diffang.setText("Diff: " + diff.toString());
 				default: super.handleMessage(msg);
 				}
 				
@@ -306,6 +336,10 @@ public class MainActivity extends Activity{
 			ct.cancel();
 			connect = false;
 		}
+		if(logging) {
+			tracker.stopLog();
+			logging = false;
+		}
 		tracker.stopTracker();
 		CharSequence text = "Disconnected!";
 		int duration = Toast.LENGTH_SHORT;
@@ -329,22 +363,38 @@ public class MainActivity extends Activity{
 					tracker.setDegrees(amt);
 					tracker.setLR(1);
 					initang.setText("Initial angle: " + tracker.setFace());
+					turnang.setText("Turn: " + Integer.toString(amt));
 				} else if (msg.get(5).contains("right")) {
 					String d = msg.get(1); 
 					int amt = Integer.parseInt(d);
 					tracker.setDegrees(amt);
 					tracker.setLR(2);
 					initang.setText("Initial angle: " + tracker.setFace());
+					turnang.setText("Turn: " + Integer.toString(amt));
 				}
 			} catch(IndexOutOfBoundsException e) {
+				initang.setText(e.getMessage());
 				return false;
 			}
 			tracker.saveMsg(msg.get(6));
 			return sounds.playText(msg.get(6), TextToSpeech.QUEUE_FLUSH, true);
 		}else {
-			tracker.saveMsg(msg.get(5));
+			initang.setText((String) msg.get(4));
+			tracker.saveMsg(msg.get(6));
 			return sounds.playText(msg.get(6), TextToSpeech.QUEUE_FLUSH, true);
 		}
+	}
+	
+	public void saveLog(MenuItem menuitem) {
+		if(logging) {
+			tracker.stopLog();
+			CharSequence text = "Log saved";
+			int duration = Toast.LENGTH_SHORT;
+			Toast toast = Toast.makeText(getApplicationContext(), text, duration);
+			toast.show();
+			logging = false;
+		}
+		return;		
 	}
 	
 	/**

@@ -67,4 +67,22 @@
         android:text="Initial Angle: "
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
+    <TextView
+        android:id="@+id/turnang"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/initang"
+        android:text="Turn: "
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/diffang"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/turnang"
+        android:text="Diff: "
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
 </RelativeLayout>

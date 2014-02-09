@@ -8,5 +8,6 @@
     <string name="Ready">Send ready</string>
     <string name="menu_disconnect">Disconnect</string>
     <string name="name">Set Name</string>
+    <string name="savelog">Stop and Save log</string>
 
 </resources>

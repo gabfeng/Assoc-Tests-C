@@ -8,5 +8,6 @@
     <item android:id="@+id/connect" android:title="@string/menu_connect" android:onClick="connectDevice" android:showAsAction="never"></item>
     <item android:id="@+id/disconnect" android:showAsAction="never" android:onClick="disconnectDevice" android:title="@string/menu_disconnect"></item>
     <item android:id="@+id/name" android:showAsAction="never" android:title="@string/name" android:onClick="setName"></item>
+    <item android:id="@+id/savelog" android:showAsAction="never" android:title="@string/savelog" android:onClick="saveLog"></item>
 
 </menu>

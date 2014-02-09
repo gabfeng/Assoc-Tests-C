@@ -19,15 +19,18 @@ public final class R {
     }
     public static final class id {
         public static final int ang=0x7f090001;
-        public static final int connect=0x7f090007;
-        public static final int disconnect=0x7f090008;
+        public static final int connect=0x7f090009;
+        public static final int diffang=0x7f090007;
+        public static final int disconnect=0x7f09000a;
         public static final int initang=0x7f090005;
         public static final int listView1=0x7f090000;
-        public static final int menu_settings=0x7f090006;
-        public static final int name=0x7f090009;
+        public static final int menu_settings=0x7f090008;
+        public static final int name=0x7f09000b;
         public static final int rec=0x7f090002;
+        public static final int savelog=0x7f09000c;
         public static final int testee=0x7f090004;
         public static final int textView1=0x7f090003;
+        public static final int turnang=0x7f090006;
     }
     public static final class layout {
         public static final int activity_main=0x7f030000;
@@ -48,6 +51,7 @@ public final class R {
         public static final int menu_disconnect=0x7f060005;
         public static final int menu_settings=0x7f060002;
         public static final int name=0x7f060006;
+        public static final int savelog=0x7f060007;
     }
     public static final class style {
         /** 
